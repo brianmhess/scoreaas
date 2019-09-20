@@ -40,18 +40,20 @@ public class ModelController {
         visitorBattery.addAll(new ListFinalizerBattery());
     }
 
-    @RequestMapping("/hello")
+    @RequestMapping("/model/hello")
     @ResponseBody
     public String hello() {
         return "\n<html><body>" +
-                "\n<H1>Hello World</H1>" +
-                "\n<p>/model/save?model_name=<String>&model_version=<Integer>&model=<String>" +
-                "\n<p>/model/delete?model_name=<String>&model_version=<Integer>" +
-                "\n<p>/model/deleteAll?model_name=<String>" +
-                "\n<p>/model/listAll" +
-                "\n<p>/model/listModelVersions?model_name=<String>" +
-                "\n<p>/model/listModel?model_name=<String>&model_version=<Integer>" +
-                "\n<p>/model/score?model_name=<String>&model_version=<Integer>&model_input1=<Value>(&model_input2=<Value>...)" +
+                "\n<H1>Score-aaS</H1>" +
+                "\n<table>" +
+                "\n <tr><td><b>Save a model</b></td> <td>/model/save?model_name=[String]&model_version=[Integer]&model=[String]</td></tr>" +
+                "\n <tr><td><b>Delete a model</b></td> <td> /model/delete?model_name=[String]&model_version=[Integer]</td></tr>" +
+                "\n <tr><td><b>Delete all versions of a model</b></td> <td>/model/deleteAll?model_name=[String]</td></tr>" +
+                "\n <tr><td><b>List all models and versions</b></td> <td>/model/listAll</td></tr>" +
+                "\n <tr><td><b>List all versions of a model</b></td> <td>/model/listModelVersions?model_name=[String]</td></tr>" +
+                "\n <tr><td><b>List a version of a model</b></td> <td>/model/listModel?model_name=[String]&model_version=[Integer]</td></tr>" +
+                "\n <tr><td><b>Score a model</b></td> <td>/model/score?model_name=[String]&model_version=[Integer]&model_input1=[Value](&model_input2=[Value]...)</td></tr>" +
+                "\n</table>" +
                 "\n</body></html>";
     }
 
