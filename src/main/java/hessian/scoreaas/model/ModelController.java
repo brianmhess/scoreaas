@@ -12,7 +12,9 @@ import org.jpmml.model.visitors.AttributeOptimizerBattery;
 import org.jpmml.model.visitors.ListFinalizerBattery;
 import org.jpmml.model.visitors.LocatorNullifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
@@ -59,9 +61,8 @@ public class ModelController {
 
     // SAVE
     @RequestMapping(value = "/model/save", method = {RequestMethod.GET, RequestMethod.POST})
-    public Model createModel(@RequestBody Model model) {
-        repository.save(model);
-        return model;
+    public Model createMode(@RequestParam String model_name, @RequestParam Integer model_version, @RequestParam String model) {
+        return repository.save(new Model(model_name, model_version, model));
     }
 
     // DELETE
@@ -95,11 +96,13 @@ public class ModelController {
     @RequestMapping(value = "/model/score", method = {RequestMethod.GET, RequestMethod.POST})
     public Map<String,Object> score(@RequestParam Map<String,String> params) {
         if (!params.containsKey("model_name")) {
-            throw new IllegalArgumentException("Must specify model_name");
+            //throw new IllegalArgumentException("Must specify model_name");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Must specify model_name");
         }
         String model_name = params.get("model_name");
         if (!params.containsKey("model_version")) {
-            throw new IllegalArgumentException("Must specify model_version");
+            //throw new IllegalArgumentException("Must specify model_version");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Must specify model_version");
         }
         Integer model_version = Integer.parseInt(params.get("model_version"));
         Evaluator evaluator = findOrReadModel(model_name, model_version);
@@ -132,14 +135,21 @@ public class ModelController {
         // Get Arguments
         Map<FieldName, FieldValue> arguments = new LinkedHashMap<FieldName, FieldValue>();
         List<InputField> inputFields = evaluator.getInputFields();
+        List<String> notFound = new ArrayList<String>();
         for(InputField inputField : inputFields) {
             FieldName inputFieldName = inputField.getName();
             if (args.containsKey(inputFieldName.toString())) {
                 FieldValue inputFieldValue = inputField.prepare(args.get(inputFieldName.toString()));
                 arguments.put(inputFieldName, inputFieldValue);
             }
+            else {
+                notFound.add(inputFieldName.toString());
+            }
         }
 
+        if (0 < notFound.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing some inputs: " + String.join(", ", notFound));
+        }
         Map<FieldName, ?> results = evaluator.evaluate(arguments);
         Map<String,Object> output = new HashMap<String, Object>();
         results.forEach((k,v) -> output.put(k.toString(), v));
