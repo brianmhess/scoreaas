@@ -8,11 +8,19 @@ as PMML.
 Execute the CQL found in `src/main/resources/schema.cql`
 `cqlsh -f src/main/resources/schema.cql`
 
+The commands issued are:
+```
+CREATE TABLE IF NOT EXISTS example.model(model_name TEXT, model_version INT, model TEXT, PRIMARY KEY ((model_name), model_version)) WITH CLUSTERING ORDER BY (model_version DESC);
+```
+
 ### Edit the `application.properties` found in `src/main/resources`.
 
-- set the `dse.contactPoints`
 - set the `dse.localDC`
 - set/note the `server.port` (default is `8333`)
+- set the `dse.username`
+- set the `dse.password`
+- set the `dse.keyspace`
+- set the path to the credentials file (oh, and place your credentials file in the `resources/` directory)
 
 ### Compile with
 ```

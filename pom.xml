@@ -17,30 +17,30 @@
     <properties>
         <java.version>1.8</java.version>
         <!-- DSE -->
-        <dse-java-driver.version>2.2.0</dse-java-driver.version>
+        <java-driver.version>4.5.0</java-driver.version>
     </properties>
 
     <dependencies>
         <!-- DSE -->
         <dependency>
-            <groupId>com.datastax.dse</groupId>
-            <artifactId>dse-java-driver-core</artifactId>
-            <version>${dse-java-driver.version}</version>
+            <groupId>com.datastax.oss</groupId>
+            <artifactId>java-driver-core</artifactId>
+            <version>${java-driver.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.datastax.dse</groupId>
-            <artifactId>dse-java-driver-query-builder</artifactId>
-            <version>${dse-java-driver.version}</version>
+            <groupId>com.datastax.oss</groupId>
+            <artifactId>java-driver-query-builder</artifactId>
+            <version>${java-driver.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.datastax.dse</groupId>
-            <artifactId>dse-java-driver-mapper-processor</artifactId>
-            <version>${dse-java-driver.version}</version>
+            <groupId>com.datastax.oss</groupId>
+            <artifactId>java-driver-mapper-processor</artifactId>
+            <version>${java-driver.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.datastax.dse</groupId>
-            <artifactId>dse-java-driver-mapper-runtime</artifactId>
-            <version>${dse-java-driver.version}</version>
+            <groupId>com.datastax.oss</groupId>
+            <artifactId>java-driver-mapper-runtime</artifactId>
+            <version>${java-driver.version}</version>
         </dependency>
 
         <!-- Spring -->
@@ -100,9 +100,9 @@
                     <target>1.8</target> <!-- (or higher) -->
                     <annotationProcessorPaths>
                         <path>
-                            <groupId>com.datastax.dse</groupId>
-                            <artifactId>dse-java-driver-mapper-processor</artifactId>
-                            <version>${dse-java-driver.version}</version>
+                            <groupId>com.datastax.oss</groupId>
+                            <artifactId>java-driver-mapper-processor</artifactId>
+                            <version>${java-driver.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
