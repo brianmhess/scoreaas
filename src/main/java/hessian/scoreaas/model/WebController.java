@@ -74,7 +74,8 @@ public class WebController {
                 "</style>" +
                 "<body>" +
                 "\n<H1>Score-aaS</H1>" +
-                "\n<H2>Add Model</H2>");
+                "\n<H2>Add Model</H2>" +
+                "\n<p>Please provide a model name, model version number, and the PMML for the model");
         retString.append("\n<form action=\"/web/save\">");
         retString.append(String.format("\n<table>" +
                         "\n <tr><td>Model Name:</td><td><input type=\"text\" id=\"model_name\" name=\"model_name\" %s required></td></tr>" +
@@ -216,6 +217,8 @@ public class WebController {
         models.sort((m1,m2) -> (0 == m1.getModel_name().compareTo(m2.getModel_name()))
                 ? m1.getModel_version().compareTo(m2.getModel_version())
                 : m1.getModel_name().compareTo(m2.getModel_name()));
+        Map<String,Integer> maxVersion = new HashMap<String,Integer>();
+        models.forEach(model -> { Integer curMax = maxVersion.getOrDefault(model.getModel_name(), Integer.MIN_VALUE); if (model.getModel_version() > curMax) maxVersion.put(model.getModel_name(), model.getModel_version()); });
         for (Model model : models) {
             Evaluator evaluator = modelUtils.getEvaluator(model);
             retString.append("<tr><td>")
@@ -224,8 +227,11 @@ public class WebController {
                     .append("<a href=\"/web/listModel?model_name=" + model.getModel_name() + "&model_version=" + model.getModel_version() + "\">" + model.getModel_version() + "</a>")
                     .append("</td><td>")
                     .append(evaluator.getSummary())
+                    .append("</td><td>")
+                    .append("<a href=\"/web/save?model_name=" + model.getModel_name() + "&model_version=" + (maxVersion.get(model.getModel_name()) + 1) + "\">New version</a>")
                     .append("</td></tr>");
         }
+        retString.append("\n</table>");
         retString.append("\n<hr>");
         retString.append(endpointList());
         retString.append("\n</body></html>");
@@ -265,6 +271,8 @@ public class WebController {
             models.sort((m1,m2) -> (0 == m1.getModel_name().compareTo(m2.getModel_name()))
                     ? m1.getModel_version().compareTo(m2.getModel_version())
                     : m1.getModel_name().compareTo(m2.getModel_name()));
+            Map<String,Integer> maxVersion = new HashMap<String,Integer>();
+            models.forEach(model -> { Integer curMax = maxVersion.getOrDefault(model.getModel_name(), Integer.MIN_VALUE); if (model.getModel_version() > curMax) maxVersion.put(model.getModel_name(), model.getModel_version()); });
 
             if (models.size() < 1)
                 retString.append("<tr><td>None found</td></tr>");
@@ -273,6 +281,8 @@ public class WebController {
                     retString.append("<tr><td>")
                             .append(String.format("<a href=/web/listModel?model_name=%s&model_version=%d>%d</a>",
                                     model.getModel_name(), model.getModel_version(), model.getModel_version()))
+                            .append("</td><td>")
+                            .append("<a href=\"/web/save?model_name=" + model.getModel_name() + "&model_version=" + (maxVersion.get(model.getModel_name()) + 1) + "\">New version</a>")
                             .append("</td></tr>");
                 }
             }
@@ -338,6 +348,9 @@ public class WebController {
             retString.append("\n<hr>");
             retString.append(String.format("\n<h3><a href=\"/web/score?model_name=%s&model_version=%s\">Score this model</a></h3>",
                     model_name, Integer.toString(model_version)));
+            Integer maxVersion = repository.findByModelName(model_name).all().stream().map(Model::getModel_version).max(Integer::compareTo).get();
+            retString.append(String.format("\n<h3><a href=\"/web/save?model_name=%s&model_version=%s\">Create new version of this model</a></h3>",
+                    model_name, Integer.toString(maxVersion + 1)));
         }
         // endpoints
         retString.append("\n<hr>");
