@@ -129,14 +129,18 @@ public class WebController {
                     (null == model_version) ? "" : "value=\"" + Integer.toString(model_version) + "\""));
         }
         else {
-            List<Model> models = repository.findByModelName(model_name).all();
-            if (0 == models.size()) {
-                retString.append("\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" required></td></tr>");
+            List<Integer> versions = repository.findByModelName(model_name).all().stream().map(Model::getModel_version).sorted().collect(Collectors.toList());
+            if (0 == versions.size()) {
+                retString.append(String.format("\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" %s></td></tr>",
+                        (null == model_version) ? "" : "value=\"" + Integer.toString(model_version) + "\""));
             }
             else {
-                retString.append("\n <tr><td>Model Version:</td><td><select id=\"model_version\" name=\"model_version\" required>");
-                for (Model model : models) {
-                    retString.append(String.format("<option value=\"%s\">%s</option>", Integer.toString(model.getModel_version()), Integer.toString(model.getModel_version())));
+                retString.append("\n <tr><td>Model Version:</td><td><select id=\"model_version\" name=\"model_version\">");
+                for (Integer version : versions) {
+                    retString.append(String.format("<option value=\"%s\" %s>%s</option>",
+                            Integer.toString(version),
+                            version.equals(model_version)? "selected" : "",
+                            Integer.toString(version)));
                 }
                 retString.append("</select></td></tr>");
             }
@@ -176,7 +180,7 @@ public class WebController {
                 "\n<H2>Delete All Verions of a Model</H2>");
         retString.append("\n<form action=\"/web/deleteAll\">");
         retString.append("\n<table>" +
-                        "\n <tr><td>Model Name:</td><td><select id=\"model_name\" name=\"model_name\" required>");
+                        "\n <tr><td>Model Name:</td><td><select id=\"model_name\" name=\"model_name\">");
         List<Model> models = repository.findAll().all();
         Set<String> modelNames = models.stream().map(Model::getModel_name).collect(Collectors.toSet());
         for (String name : modelNames) {
@@ -320,10 +324,28 @@ public class WebController {
                 "\n<H2>List Model</H2>");
         retString.append("\n<form action=\"/web/listModel\">");
         retString.append(String.format("\n<table>" +
-                        "\n <tr><td>Model Name:</td><td><input type=\"text\" id=\"model_name\" name=\"model_name\" %s></td></tr>" +
-                        "\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" %s></td></tr>",
-                (null == model_name) ? "" : "value=\"" + model_name + "\"",
-                (null == model_version) ? "" : "value=\"" + Integer.toString(model_version) + "\""));
+                        "\n <tr><td>Model Name:</td><td><input type=\"text\" id=\"model_name\" name=\"model_name\" %s></td></tr>",
+                (null == model_name) ? "" : "value=\"" + model_name + "\""));
+        if (null == model_name) {
+            retString.append(String.format("\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" %s></td></tr>",
+                    (null == model_version) ? "" : "value=\"" + Integer.toString(model_version) + "\""));
+        }
+        else {
+            List<Integer> versions = repository.findByModelName(model_name).all().stream().map(Model::getModel_version).sorted().collect(Collectors.toList());
+            if (0 == versions.size()) {
+                retString.append("\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\"></td></tr>");
+            }
+            else {
+                retString.append("\n <tr><td>Model Version:</td><td><select id=\"model_version\" name=\"model_version\">");
+                for (Integer version : versions) {
+                    retString.append(String.format("<option value=\"%s\" %s>%s</option>",
+                            Integer.toString(version),
+                            version.equals(model_version)? "selected" : "",
+                            Integer.toString(version)));
+                }
+                retString.append("</select></td></tr>");
+            }
+        }
         if ((null != model_name) && (null != model_version)) {
             Model model = repository.findByModelNameAndModelVersion(model_name, model_version);
             if (null == model) {
@@ -424,10 +446,29 @@ public class WebController {
                 "\n<H2>Score Model</H2>");
         retString.append("\n<form action=\"/web/score\">");
         retString.append(String.format("\n<table>" +
-                        "\n <tr><td>Model Name:</td><td><input type=\"text\" id=\"model_name\" name=\"model_name\" %s></td></tr>" +
-                        "\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" %s></td></tr>",
-                (null == model_name) ? "" : "value=\"" + model_name + "\"",
-                (null == model_version_string) ? "" : "value=\"" + model_version_string + "\""));
+                        "\n <tr><td>Model Name:</td><td><input type=\"text\" id=\"model_name\" name=\"model_name\" %s></td></tr>",
+                (null == model_name) ? "" : "value=\"" + model_name + "\""));
+        if (null == model_name) {
+            retString.append(String.format("\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" %s required></td></tr>",
+                    (null == model_version_string) ? "" : "value=\"" + model_version_string + "\""));
+        }
+        else {
+            List<Integer> versions = repository.findByModelName(model_name).all().stream().map(Model::getModel_version).sorted().collect(Collectors.toList());
+            if (0 == versions.size()) {
+                retString.append(String.format("\n <tr><td>Model Version:</td><td><input type=\"text\" id=\"model_version\" name=\"model_version\" %s required></td></tr>",
+                        (null == model_version_string) ? "" : "value=\"" + model_version_string + "\""));
+            }
+            else {
+                retString.append("\n <tr><td>Model Version:</td><td><select id=\"model_version\" name=\"model_version\">");
+                for (Integer version : versions) {
+                    retString.append(String.format("<option value=\"%s\" %s>%s</option>",
+                            Integer.toString(version),
+                            version.equals(Integer.parseInt(model_version_string)) ? "selected" : "",
+                            Integer.toString(version)));
+                }
+                retString.append("</select></td></tr>");
+            }
+        }
         if ((null != model_name) && (null != model_version_string)) {
             Integer model_version = Integer.parseInt(model_version_string);
             Model model = repository.findByModelNameAndModelVersion(model_name, model_version);
